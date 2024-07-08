@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+import "validate/validate.proto";
+
+package CalculationModule;
+
+enum CalculationGrpcTypes
+{
+  // Расчёт.
+  Calculation = 0;
+  // Предварительный расчёт.
+  PreCalculation = 2;
+}
+
+// Запрос на расчет.
+message CalculationRequestGrpcDto {
+  // Контекст запроса.
+  repeated ContextAttributeGrpcDto Context = 1;
+  // Тип расчета.
+  CalculationGrpcTypes CalculationType = 2;
+  // Номера агентских договоров, для которых необходимо выполнить расчет.
+  repeated string AgentNumbers = 3;
+  // Идентификаторы мотиваций, для которых необходимо выполнить расчет.
+  repeated string Motivations = 4 [(validate.rules).string.uuid = true];
+}
+
+message ContextAttributeGrpcDto {
+  // Код.
+  string AttributeCode = 1;
+  // Значение.
+  string AttributeValue = 2;
+}
+
+// Ответ на запрос.
+message CalculationResponseGrpcDto {
+  // Идентификатор начатого процесса расчета.
+  string CorrelationId = 1;
+  // Текст ошибки.
+  google.protobuf.StringValue ErrorMessage = 2;
+  // Код статуса.
+  uint32 StatusCode = 3;
+}
+
+// Сервис запроса на расчет вектора.
+service CalculationService {
+  // Обрабатывает запрос.
+  rpc Calculate (CalculationRequestGrpcDto) returns (CalculationResponseGrpcDto);
+}
